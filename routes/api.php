@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\NoteController;
+use App\Http\Controllers\ResetController;
 
 /*
 |--------------------------------------------------------------------------
@@ -18,11 +19,10 @@ use App\Http\Controllers\NoteController;
 
 Route::prefix('/auth')->group(function () {
     Route::post('/register', [AuthController::class, 'register']);
-    Route::post('/login', [AuthController::class, 'login']);
+    Route::post('/login', [AuthController::class, 'login'])->name('login');
 
     Route::middleware('auth:sanctum')->post('/logout', [AuthController::class, 'logout']);
-    Route::middleware('auth:sanctum')->get('/user', [AuthController::class, 'user']);
-    
+    Route::middleware('auth:sanctum')->get('/user', [AuthController::class, 'user']); 
 });
 
 Route::middleware('auth:sanctum')->prefix('/notes')->group(function () {
@@ -31,5 +31,6 @@ Route::middleware('auth:sanctum')->prefix('/notes')->group(function () {
     Route::get('/{id}', [NoteController::class, 'show']);
     Route::put('/{id}', [NoteController::class, 'update']);
     Route::delete('/{id}', [NoteController::class, 'delete']);
-    
 });
+
+Route::delete('reset', [ResetController::class, 'reset']);
