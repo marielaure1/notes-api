@@ -13,11 +13,11 @@ class NoteController extends Controller
 {
     public function index(Request $request)
     {
-        if(!$request->user()->currentAccessToken()){
+        if(!$request->user()){
             return response()->json(['message' => "Unauthorized."], 401);
         }
         
-        $notes = Note::orderBy('created_at', 'desc')->get();
+        $notes = Note::where('user_id', $request->user()->id)->orderBy('created_at', 'desc')->get();
 
         // if(!$notes->count() > 0){
         //     return response()->json(["notes" => "Il n'y a aucune note"], 404)->header('Content-Type', "application/json");
@@ -63,6 +63,10 @@ class NoteController extends Controller
             return response()->json(['user' => "La note n'existe pas."], 404)->header('Content-Type', "application/json");
         }
 
+        if($note->user_id !== auth()->user()->id) {
+            return response()->json(['message' => '"Accès à la note non autorisé'], 403);
+        }
+
         return response()->json(['note' => $note], 200)->header('Content-Type', "application/json");
     }
 
@@ -90,9 +94,8 @@ class NoteController extends Controller
             return response()->json(['note' => "La note n'existe pas"], 404)->header('Content-Type', "application/json");
         }
 
-        if ($note->user_id != $request->user()->id) {
-            
-            return response()->json(['note' => "Accès à la note non autorisé"], 403)->header('Content-Type', "application/json");
+        if($note->user_id !== auth()->user()->id) {
+            return response()->json(['message' => '"Accès à la note non autorisé'], 403);
         }
 
         $note->update(["content" => $request->content]);
@@ -113,9 +116,8 @@ class NoteController extends Controller
             return response()->json(['note' => "La note n'existe pas"], 404)->header('Content-Type', "application/json");
         }
 
-        if ($note->user_id != $request->user()->id) {
-            
-            return response()->json(['note' => "Accès à la note non autorisé"], 403)->header('Content-Type', "application/json");
+        if($note->user_id !== auth()->user()->id) {
+            return response()->json(['message' => '"Accès à la note non autorisé'], 403);
         }
 
         $note->delete();
